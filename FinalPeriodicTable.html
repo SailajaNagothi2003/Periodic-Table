@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Modern Periodic Table</title>
+    <style>
+        /* General Styles */
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td {
+            font-size: 25px;
+            text-align: center;
+            color: white;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        td:hover {
+            background-color: honeydew;
+            color: black;
+        }
+
+        td.empty {
+            background-color: black;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 60px);
+            gap: 5px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .class1 { color: cornflowerblue; font-size: 22px; }
+        .class2 { color: cyan; font-size: 22px; }
+        .class3 { color: fuchsia; font-size: 22px; }
+        .class4 { color: deeppink; font-size: 22px; }
+        .class5 { color: red; font-size: 22px; }
+        .class6 { color: orange; font-size: 22px; }
+        .class7 { color: deepskyblue; font-size: 22px; }
+        .class71 { color: chartreuse; font-size: 22px; }
+        .class8 { color: yellowgreen; font-size: 22px; }
+        .class9 { color: lightseagreen; font-size: 22px; }
+        .class10 { color: lightgray; font-size: 22px; }
+
+        #container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        .nucleus {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 18px;
+            height: 18px;
+            background-color: gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: black;
+        }
+
+        .circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 1px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .circle-label {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+            animation: rotate-dot 5s linear 1;
+        }
+
+        @keyframes rotate-dot {
+            0% {
+                transform: rotate(360deg) translate(-50%, -50%);
+            }
+        }
+
+        /* Popup Styles */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            height: 390px;
+            background-color: white;
+            color: black;
+            text-align: center;
+            border: 2px solid #000;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .popup.show {
+            display: block;
+        }
+
+        .popup .data-id {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            padding-top: 2%;
+        }
+
+        .popup .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: navy;
+            font-weight: bold;
+            font-size: 48px;
+        }
+
+        .heading {
+            font-size: 3em;
+            font-weight: bold;
+            color:darkcyan;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background-color: yellow;
+            border: 5px solid yellowgreen;
+        }
+
+
+        .popup .config-list {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            font-size: 20px;
+            line-height: 1.5;
+            padding-top: 18%;
+            padding-right: 5%;
+            font-weight: bolder;
+        }
+
+        .popup h2 {
+            color: deeppink;
+            margin-top: 0;
+            font-size: 24px;
+            text-align: center;
+            padding-top: 2%;
+            font-family: cursive;
+        }
+        .mass {
+            margin-top: 0;
+            font-size: 25px;
+            color:darkmagenta;
+            text-align: center;
+            padding-top: 75%;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+        #fullscreen-btn {
+    position: absolute;
+    top: 40px;
+    right: 20px;
+    padding: 10px;
+    color: white;
+    background-color: darkslategray;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    z-index: 1001; /* Ensure button is above other elements */
+}
+
+#fullscreen-btn:hover {
+    background-color: white;
+    color: black;
+}
+
+#fullscreen-icon {
+    margin: 0;
+}
+
+    </style>
+</head>
+<body>
+    <button id="fullscreen-btn" onclick="toggleFullscreen()">
+        <i id="fullscreen-icon" class="fas fa-expand"></i>
+    </button>    
+    <div class="heading">Modern Periodic Table</div>
+
+    <!-- Periodic Table Header -->
+    <table>
+        <tr style="cursor: default; pointer-events: none;">
+            <td class="class1">Alkali Metals</td>
+            <td class="class2">Alkaline-Earth-Metals</td>
+            <td class="class3">Lanthanoids</td>
+            <td class="class4">Actinides</td>
+            <td class="class5">Transition-Metals</td>
+            <td class="class6">Post Transition Metals</td>
+            <td class="class7">Metalloids</td>
+            <td class="class71">Other NonMetals</td>
+            <td class="class8">Halogens</td>
+            <td class="class9">Noble Gases</td>
+            <td class="class10">Other Metals</td>
+        </tr>
+    </table>
+
+    <!-- Periodic Table Grid -->
+    <table>
+        <div class="periodic-table">
+            <!-- Row 1 -->
+                <tr>
+                    <td bgcolor="cornflowerblue" data-id="1"  data-config="[1]"   onclick="showDetails(this)" >1<br>H</td>
+                    <td colspan="16" class="empty"></td> 
+                    <td data-id="2"  data-config="[2]"  onclick="showDetails(this)"  bgcolor="lightseagreen" >2<br>He</td> 
+                </tr>
+                <tr>
+                    <td data-id="3"  data-config="[2,1]"  onclick="showDetails(this)" bgcolor="blue" >3<br>Li</td>
+                    <td  data-id="4" data-config="[2,2]"onclick="showDetails(this)" bgcolor="cyan">4<br>Be</td>
+                    <td colspan="10" class="empty"></td>
+                    
+                    <td  bgcolor="deepskyblue" data-id="5"  data-config="[2,3]"  onclick="showDetails(this)" >5<br>B</td>
+                    <td  bgcolor="chartreuse" data-id="6"  data-config="[2,4]"  onclick="showDetails(this)">6<br>C</td>
+                    <td  bgcolor="chartreuse" data-id="7"  data-config="[2,5]"  onclick="showDetails(this)">7<br>N</td>
+                    <td  bgcolor="chartreuse" data-id="8"  data-config="[2,6]"  onclick="showDetails(this)">8<br>O</td>
+                    <td  bgcolor="yellowgreen" data-id="9"  data-config="[2,7]"  onclick="showDetails(this)">9<br>F</td>
+                    <td  bgcolor="lightseagreen" data-id="10"  data-config="[2,8]"  onclick="showDetails(this)">10<br>Ne</td>
+                </tr>
+                <tr>
+                    <td bgcolor="blue" data-id="11"  data-config="[2,8,1]"  onclick="showDetails(this)">11<br>Na</td>
+                    <td bgcolor="cyan" data-id="12"  data-config="[2,8,2]"  onclick="showDetails(this)">12<br>Mg</td>
+                    <td colspan="10" class="empty"></td>
+                    <td bgcolor="orange" data-id="13"  data-config="[2,8,3]" onclick="showDetails(this)">13<br>Al</td>
+                    <td bgcolor="deepskyblue" data-id="14"  data-config="[2,8,4]" onclick="showDetails(this)">14<br>Si</td>
+                    <td bgcolor="chartreuse" data-id="15" data-config="[2,8,5]" onclick="showDetails(this)">15<br>P</td>
+                    <td bgcolor="chartreuse" data-id="16"  data-config="[2,8,6]" onclick="showDetails(this)">16<br>S</td>
+                    <td bgcolor="yellowgreen" data-id="17" data-config="[2,8,7]" onclick="showDetails(this)">17<br>Cl</td>
+                    <td bgcolor="lightseagreen" data-id="18" data-config="[2,8,8]" onclick="showDetails(this)">18<br>Ar</td>
+                </tr>
+                <tr>
+                    <td bgcolor="blue" data-id="19" data-config="[2,8,8,1]" onclick="showDetails(this)">19<br>K</td>
+                    <td bgcolor="cyan" data-id="20"  data-config="[2,8,8,2]" onclick="showDetails(this)">20<br>Ca</td>
+                    <td bgcolor="red" data-id="21"  data-config="[2,8,9,2]" onclick="showDetails(this)">21<br>Sc</td>
+                    <td bgcolor="red" data-id="22"  data-config="[2,8,10,2]" onclick="showDetails(this)">22<br>Ti</td>
+                    <td bgcolor="red" data-id="23"  data-config="[2,8,11,2]" onclick="showDetails(this)">23<br>V</td>
+                    <td bgcolor="red" data-id="24" data-config="[2,8,13,1]" onclick="showDetails(this)">24<br>Cr</td>
+                    <td bgcolor="red" data-id="25"  data-config="[2,8,13,2]" onclick="showDetails(this)">25<br>Mn</td>
+                    <td bgcolor="red" data-id="26"  data-config="[2,8,14,2]" onclick="showDetails(this)">26<br>Fe</td>
+                    <td bgcolor="red" data-id="27"  data-config="[2,8,15,2]" onclick="showDetails(this)">27<br>Co</td>
+                    <td bgcolor="red" data-id="28"  data-config="[2,8,16,2]" onclick="showDetails(this)">28<br>Ni</td>
+                    <td bgcolor="red" data-id="29" data-config="[2,8,18,1]" onclick="showDetails(this)">29<br>Cu</td>
+                    <td bgcolor="red" data-id="30" data-config="[2,8,18,2]" onclick="showDetails(this)">30<br>Zn</td>
+                    <td bgcolor="orange" data-id="31" data-config="[2,8,18,3]" onclick="showDetails(this)">31<br>Ga</td>
+                    <td bgcolor="deepskyblue" data-id="32"  data-config="[2,8,18,4]" onclick="showDetails(this)">32<br>Ge</td>
+                    <td bgcolor="deepskyblue" data-id="33"  data-config="[2,8,18,5]" onclick="showDetails(this)">33<br>As</td>
+                    <td bgcolor="chartreuse" data-id="34" data-config="[2,8,18,6]" onclick="showDetails(this)">34<br>Se</td>
+                    <td bgcolor="yellowgreen" data-id="35" data-config="[2,8,18,7]" onclick="showDetails(this)">35<br>Br</td>
+                    <td bgcolor="lightseagreen" data-id="36" data-config="[2,8,18,8]" onclick="showDetails(this)">36<br>Kr</td>
+                </tr>
+                <tr>
+                    <td bgcolor="blue" data-id="37"  data-config="[2,8,18,8,1]" onclick="showDetails(this)">37<br>Rb</td>
+                    <td bgcolor="cyan" data-id="38"  data-config="[2,8,18,8,2]" onclick="showDetails(this)">38<br>Sr</td>
+                    <td bgcolor="red" data-id="39" data-config="[2,8,18,9,2]" onclick="showDetails(this)">39<br>Y</td>
+                    <td bgcolor="red" data-id="40"  data-config="[2,8,18,10,2]" onclick="showDetails(this)">40<br>zr</td>
+                    <td bgcolor="red" data-id="41" data-config="[2,8,18,12,1]" onclick="showDetails(this)">41<br>Nb</td>
+                    <td bgcolor="red" data-id="42" data-config="[2,8,18,13,1]" onclick="showDetails(this)">42<br>Mo</td>
+                    <td bgcolor="red" data-id="43" data-config="[2,8,18,13,2]" onclick="showDetails(this)">43<br>Tc</td>
+                    <td bgcolor="red" data-id="44"  data-config="[2,8,18,15,1]" onclick="showDetails(this)">44<br>Ru</td>
+                    <td bgcolor="red" data-id="45"data-config="[2,8,18,16,1]" onclick="showDetails(this)">45<br>Rh</td>
+                    <td bgcolor="red" data-id="46" data-config="[2,8,18,18]" onclick="showDetails(this)">46<br>Pd</td>
+                    <td bgcolor="red" data-id="47" ata-config="[2,8,18,18,1]" onclick="showDetails(this)">47<br>Ag</td>
+                    <td bgcolor="red" data-id="48"data-config="[2,8,18,18,2]" onclick="showDetails(this)">48<br>Cd</td>
+                    <td bgcolor="orange" data-id="49"  data-config="[2,8,18,18,3]" onclick="showDetails(this)">49<br>In</td>
+                    <td bgcolor="orange" data-id="50" data-config="[2,8,18,18,4]" onclick="showDetails(this)">50<br>Sn</td>
+                    <td bgcolor="deepskyblue" data-id="51" data-config="[2,8,18,18,5]" onclick="showDetails(this)">51<br>Sb</td>
+                    <td bgcolor="deepskyblue" data-id="52" data-config="[2,8,18,18,6]" onclick="showDetails(this)">52<br>Te</td>
+                    <td bgcolor="yellowgreen" data-id="53" data-config="[2,8,18,18,7]"onclick="showDetails(this)">53<br>I</td>
+                    <td bgcolor="lightseagreen" data-id="54"data-config="[2,8,18,18,8]" onclick="showDetails(this)">54<br>Kr</td>
+                </tr>
+                <tr>
+                    <td bgcolor="blue" data-id="5" data-config="[2,8,18,18,8,1]"  onclick="showDetails(this)">55<br>Rb</td>
+                    <td bgcolor="cyan" data-id="5" data-config="[2,8,18,18,8,2]"  onclick="showDetails(this)">56<br>Ba</td>
+                    <td bgcolor="fuchsia" >*<br></td>
+                    <td bgcolor="red" data-id="72" data-config="[2, 8, 18, 32, 10, 2]"  onclick="showDetails(this)">72<br>Hf</td>
+                    <td bgcolor="red" data-id="73" data-config="[2, 8, 18, 32, 11, 2]"  onclick="showDetails(this)">73<br>Ta</td>
+                    <td bgcolor="red" data-id="74" data-config="[2, 8, 18, 32, 12, 2]"  onclick="showDetails(this)">74<br>W</td>
+                    <td bgcolor="red" data-id="75" data-config="[2, 8, 18, 32, 13, 2]"  onclick="showDetails(this)">75<br>Re</td>
+                    <td bgcolor="red" data-id="76" data-config="[2, 8, 18, 32, 14, 2]"  onclick="showDetails(this)">76<br>Os</td>
+                    <td bgcolor="red" data-id="77"  data-config="[2, 8, 18, 32, 15, 2]"  onclick="showDetails(this)">77<br>Ir</td>
+                    <td bgcolor="red" data-id="78"  data-config="[2, 8, 18, 32, 17, 1]" onclick="showDetails(this)">78<br>Pt</td>
+                    <td bgcolor="red" data-id="79"  data-config="[2, 8, 18, 32, 18, 1]"  onclick="showDetails(this)">79<br>Au</td>
+                    <td bgcolor="red" data-id="80"  data-config="[2, 8, 18, 32, 18, 2]"  onclick="showDetails(this)">80<br>Hg</td>
+                    <td bgcolor="orange" data-id="81"  data-config="[2, 8, 18, 32, 18, 3]"  onclick="showDetails(this)">81<br>Tl</td>
+                    <td bgcolor="orange" data-id="82"  data-config="[2, 8, 18, 32, 18, 4]"  onclick="showDetails(this)">82<br>Pb</td>
+                    <td bgcolor="orange" data-id="83"  data-config="[2, 8, 18, 32, 18, 5]"  onclick="showDetails(this)">83<br>Bi</td>
+                    <td bgcolor="deepskyblue" data-id="84"  data-config="[2, 8, 18, 32, 18, 6]"  onclick="showDetails(this)">84<br>Po</td>
+                    <td bgcolor="yellowgreen" data-id="85"  data-config="[2, 8, 18, 32, 18, 7]"  onclick="showDetails(this)">85<br>At</td>
+                    <td bgcolor="lightseagreen" data-id="86"  data-config="[2, 8, 18, 32, 18, 8]"  onclick="showDetails(this)">86<br>Rn</td>
+                </tr>
+                <tr>
+                    <td bgcolor="blue" data-id="87" data-config="[2, 8, 18, 32, 18, 8, 1]"  onclick="showDetails(this)">87<br>Fr</td>
+                    <td bgcolor="cyan" data-id="88" data-config="[2, 8, 18, 32, 18, 8, 2]" onclick="showDetails(this)">88<br>Ra</td>
+                    <td bgcolor="deeppink">**<br></td>
+                    <td bgcolor="red" data-id="104" data-config="[2, 8, 18, 32, 32, 10, 2]" onclick="showDetails(this)">104<br>Rf</td>
+                    <td bgcolor="red" data-id="105" data-config="[2, 8, 18, 32, 32, 11, 2]" onclick="showDetails(this)">105<br>Db</td>
+                    <td bgcolor="red" data-id="106" data-config="[2, 8, 18, 32, 32, 12, 2]" onclick="showDetails(this)">106<br>Sg</td>
+                    <td bgcolor="red" data-id="107" data-config="[2, 8, 18, 32, 32, 13, 2]"  onclick="showDetails(this)">107<br>Bh</td>
+                    <td bgcolor="red" data-id="108" data-config="[2, 8, 18, 32, 32, 14, 2]"  onclick="showDetails(this)">108<br>Hs</td>
+                    <td bgcolor="red" data-id="109" data-config="[2, 8, 18, 32, 32, 15, 2]"  onclick="showDetails(this)">109<br>Mt</td>
+                    <td bgcolor="red" data-id="110" data-config="[2, 8, 18, 32, 32, 17, 1]"  onclick="showDetails(this)">110<br>Ds</td>
+                    <td bgcolor="red" data-id="111" data-config="[2, 8, 18, 32, 32, 18, 1]"  onclick="showDetails(this)">111<br>Rg</td>
+                    <td bgcolor="red" data-id="112" data-config="[2, 8, 18, 32, 32, 18, 2]"onclick="showDetails(this)">112<br>Cn</td>
+                    <td bgcolor="gray" data-id="113" data-config="[2, 8, 18, 32, 32, 18, 3]"onclick="showDetails(this)">113<br>Nh</td>
+                    <td bgcolor="gray" data-id="114" data-config="[2, 8, 18, 32, 32, 18, 4]" onclick="showDetails(this)">114<br>Fl</td>
+                    <td bgcolor="gray" data-id="115" data-config="[2, 8, 18, 32, 32, 18, 5]" onclick="showDetails(this)">115<br>Mc</td>
+                    <td bgcolor="gray" data-id="116" data-config="[2, 8, 18, 32, 32, 18, 6]" onclick="showDetails(this)">116<br>Lv</td>
+                    <td bgcolor="gray" data-id="117" data-config="[2, 8, 18, 32, 32, 18, 7]" onclick="showDetails(this)">117<br>Ts</td>
+                    <td bgcolor="gray" data-id="118" data-config="[2, 8, 18, 32, 32, 18, 8]" onclick="showDetails(this)">118<br>Og</td>
+                </tr>
+            </table>
+            <br>
+            <br>
+            <table width="1400" height="10">
+                <tr>
+                    <td style="cursor: default; pointer-events: none;">Lanthanoids(*)</td>
+                    <td bgcolor="fuchsia" data-id="57" data-config="[2, 8, 18, 18, 9, 2]" onclick="showDetails(this)">57<br>La</td>
+                    <td bgcolor="fuchsia" data-id="58" data-config="[2, 8, 18, 19, 9, 2]" onclick="showDetails(this)">58<br>Ce</td>
+                    <td bgcolor="fuchsia" data-id="59" data-config="[2, 8, 18, 21, 8, 2]" onclick="showDetails(this)">59<br>Pr</td>
+                    <td bgcolor="fuchsia" data-id="60" data-config="[2, 8, 18, 22, 8, 2]" onclick="showDetails(this)">60<br>Nd</td>
+                    <td bgcolor="fuchsia" data-id="61" data-config="[2, 8, 18, 23, 8, 2]" onclick="showDetails(this)">61<br>Pm</td>
+                    <td bgcolor="fuchsia" data-id="62" data-config="[2, 8, 18, 24, 8, 2]" onclick="showDetails(this)">62<br>Sm</td>
+                    <td bgcolor="fuchsia" data-id="63" data-config="[2, 8, 18, 25, 8, 2]" onclick="showDetails(this)">63<br>Eu</td>
+                    <td bgcolor="fuchsia" data-id="64" data-config="[2, 8, 18, 25, 9, 2]" onclick="showDetails(this)">64<br>Gd</td>
+                    <td bgcolor="fuchsia" data-id="65" data-config="[2, 8, 18, 27, 8, 2]" onclick="showDetails(this)">65<br>Tb</td>
+                    <td bgcolor="fuchsia" data-id="66" data-config="[2, 8, 18, 28, 8, 2]" onclick="showDetails(this)">66<br>Dy</td>
+                    <td bgcolor="fuchsia" data-id="67" data-config="[2, 8, 18, 29, 8, 2]" onclick="showDetails(this)">67<br>Ho</td>
+                    <td bgcolor="fuchsia" data-id="68" data-config="[2, 8, 18, 30, 8, 2]" onclick="showDetails(this)">68<br>Er</td>
+                    <td bgcolor="fuchsia" data-id="69" data-config="[2, 8, 18, 31, 8, 2]" onclick="showDetails(this)">69<br>Tm</td>
+                    <td bgcolor="fuchsia" data-id="70" data-config="[2, 8, 18, 32, 8, 2]" onclick="showDetails(this)">70<br>Yb</td>
+                    <td bgcolor="fuchsia" data-id="71" data-config="[2, 8, 18, 32, 9, 2]" onclick="showDetails(this)">71<br>Lu</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td style="cursor: default; pointer-events: none;">Actanoids(**)</td>
+                    <td bgcolor="deeppink" data-id="89" data-config="[2, 8, 18, 32, 18, 9, 2]" onclick="showDetails(this)">89<br>Ac</td>
+                    <td bgcolor="deeppink" data-id="90" data-config="[2, 8, 18, 32, 18, 10, 2]"  onclick="showDetails(this)">90<br>Th</td>
+                    <td bgcolor="deeppink" data-id="91" data-config="[2, 8, 18, 32, 20, 9, 2]"  onclick="showDetails(this)">91<br>Pa</td>
+                    <td bgcolor="deeppink" data-id="92" data-config="[2, 8, 18, 32, 21, 9, 2]"  onclick="showDetails(this)">92<br>U</td>
+                    <td bgcolor="deeppink" data-id="93" data-config="[2, 8, 18, 32, 22, 9, 2]"  onclick="showDetails(this)">93<br>Np</td>
+                    <td bgcolor="deeppink" data-id="94" data-config="[2, 8, 18, 32, 24, 8, 2]"  onclick="showDetails(this)">94<br>Pu</td>
+                    <td bgcolor="deeppink" data-id="95" data-config="[2, 8, 18, 32, 25, 8, 2]"  onclick="showDetails(this)">95<br>Am</td>
+                    <td bgcolor="deeppink" data-id="96" data-config="[2, 8, 18, 32, 25, 9, 2]"  onclick="showDetails(this)">96<br>Cm</td>
+                    <td bgcolor="deeppink" data-id="97" data-config="[2, 8, 18, 32, 27, 8, 2]"  onclick="showDetails(this)">97<br>Bk</td>
+                    <td bgcolor="deeppink" data-id="98" data-config="[2, 8, 18, 32, 28, 8, 2]"  onclick="showDetails(this)">98<br>Cf</td>
+                    <td bgcolor="deeppink" data-id="99" data-config="[2, 8, 18, 32, 29, 8, 2]"  onclick="showDetails(this)">99<br>Es</td>
+                    <td bgcolor="deeppink" data-id="100" data-config="[2, 8, 18, 32, 30, 8, 2]"  onclick="showDetails(this)">100<br>Fm</td>
+                    <td bgcolor="deeppink" data-id="101" data-config="[2, 8, 18, 32, 32, 8, 2]"  onclick="showDetails(this)">101<br>Md</td>
+                    <td bgcolor="deeppink" data-id="102" data-config="[2, 8, 18, 32, 32, 8, 3]"  onclick="showDetails(this)">102<br>No</td>
+                    <td bgcolor="deeppink" data-id="103" data-config="[2, 8, 18, 32, 32, 10, 2]"  onclick="showDetails(this)">103<br>Lr</td>
+                    <td></td>
+                </tr>
+        </div>
+        </table>
+<!-- Popup box -->
+<div id="overlay" class="overlay"></div>
+<div id="popup" class="popup">
+    <div class="close-btn">&times;</div>
+    <div class="data-id" id="popup-id"></div>
+    <h2 id="element-name"></h2>
+    <div id="nucleus" class="nucleus"></div>
+    <div id="popup-content"></div>
+    <div class="mass" id="element-mass"></div>
+    <div id="element-type" style="font-size: 22px; padding-top: 1%; color:darkcyan; font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; "></div>
+    <div id="config-list" class="config-list"></div>
+</div>
+
+<script>
+    // Create a circle with dots
+    function createCircle(radius, count) {
+        const circle = document.createElement('div');
+        circle.className = 'circle';
+        circle.style.width = `${radius * 2}px`;
+        circle.style.height = `${radius * 2}px`;
+        circle.style.animationDuration = `${15 - radius / 20}s`;
+
+        const angleStep = 360 / count;
+        for (let i = 0; i < count; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            const angle = i * angleStep;
+            dot.style.transform = `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`;
+            circle.appendChild(dot);
+        }
+
+        return circle;
+    }
+
+    // Create circles based on electron configuration
+    function createCircles(inputArray) {
+        const baseRadius = 20;
+        const container = document.getElementById('popup-content');
+        container.innerHTML = '';
+
+        inputArray.forEach((count, index) => {
+            const radius = baseRadius * (index + 1);
+            const circle = createCircle(radius, count);
+            container.appendChild(circle);
+        });
+    }
+
+    // Show details in the popup
+    function showDetails(cell) {
+        const elementId = cell.getAttribute('data-id');
+        const configString = cell.getAttribute('data-config');
+        const configArray = JSON.parse(configString);
+
+        // Fetch data using AJAX
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", `getElementDetails.php?id=${elementId}`, true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                document.getElementById('element-name').innerText = response.Element;
+                document.getElementById('nucleus').innerHTML = response.Symbol;
+                document.getElementById('element-mass').innerHTML = response.AtomicMass;
+                document.getElementById('element-type').innerHTML = response.Type;
+            }
+        };
+        xhr.send();
+
+        // Update popup content
+        document.getElementById('popup-id').textContent = elementId;
+        createCircles(configArray);
+
+        // Display the configuration numbers vertically
+        const configList = document.getElementById('config-list');
+        configList.innerHTML = '';
+        configArray.forEach(item => {
+            const listItem = document.createElement('div');
+            listItem.textContent = item;
+            configList.appendChild(listItem);
+        });
+
+        document.getElementById('popup').classList.add('show');
+        document.getElementById('overlay').classList.add('show');
+    }
+
+    // Close the popup
+    function closePopup() {
+        const popup = document.getElementById('popup');
+        const overlay = document.getElementById('overlay');
+        popup.classList.remove('show');
+        overlay.classList.remove('show');
+    }
+
+    // Event listeners for close button and overlay
+    document.addEventListener('DOMContentLoaded', () => {
+        const closeButton = document.querySelector('.popup .close-btn');
+        const overlay = document.getElementById('overlay');
+
+        closeButton.addEventListener('click', closePopup);
+        overlay.addEventListener('click', closePopup);
+    });
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            // Enter fullscreen
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`Error attempting to enter fullscreen mode: ${err.message} (${err.name})`);
+            });
+            document.getElementById('fullscreen-icon').classList.remove('fa-expand');
+            document.getElementById('fullscreen-icon').classList.add('fa-compress');
+        } else {
+            // Exit fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                document.getElementById('fullscreen-icon').classList.remove('fa-compress');
+                document.getElementById('fullscreen-icon').classList.add('fa-expand');
+            }
+        }
+    }
+
+    // Optional: Update button icon when exiting fullscreen using the fullscreenchange event
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            document.getElementById('fullscreen-icon').classList.remove('fa-compress');
+            document.getElementById('fullscreen-icon').classList.add('fa-expand');
+        }
+    });
+
+</script>
+</body>
+</html>
